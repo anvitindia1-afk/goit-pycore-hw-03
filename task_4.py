@@ -3,6 +3,18 @@
 from datetime import datetime, timedelta
 
 
+def get_birthday_in_year(birthday, year):
+    """
+    Повертає день народження в заданому році.
+    Якщо людина народилася 29 лютого, а рік не високосний
+    (такого дня немає), святкуємо 1 березня.
+    """
+    try:
+        return birthday.replace(year=year)
+    except ValueError:
+        return birthday.replace(year=year, month=3, day=1)
+
+
 def get_upcoming_birthdays(users):
     """
     users — список словників виду {"name": "...", "birthday": "РРРР.ММ.ДД"}.
@@ -18,11 +30,11 @@ def get_upcoming_birthdays(users):
         birthday = datetime.strptime(user["birthday"], "%Y.%m.%d").date()
 
         # День народження в цьому році: той самий місяць і день, але поточний рік
-        birthday_this_year = birthday.replace(year=today.year)
+        birthday_this_year = get_birthday_in_year(birthday, today.year)
 
         # Якщо в цьому році вже минув — беремо наступний рік
         if birthday_this_year < today:
-            birthday_this_year = birthday_this_year.replace(year=today.year + 1)
+            birthday_this_year = get_birthday_in_year(birthday, today.year + 1)
 
         # Скільки днів лишилося до дня народження
         days_left = (birthday_this_year - today).days
@@ -49,6 +61,7 @@ if __name__ == "__main__":
     users = [
         {"name": "John Doe", "birthday": "1985.01.23"},
         {"name": "Jane Smith", "birthday": "1990.01.27"},
+        {"name": "Leap Person", "birthday": "2000.02.29"},  # 29 лютого
     ]
 
     upcoming_birthdays = get_upcoming_birthdays(users)
